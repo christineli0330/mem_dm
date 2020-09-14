@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <!--- Start the Javascript that does all the hard work! --->
@@ -72,7 +73,7 @@ var images = new Array("food_stimuli/Food_Folio_Images/1% milk.jpg", "food_stimu
 "food_stimuli/Food_Folio_Images/Pickles_ dill.jpg", "food_stimuli/Food_Folio_Images/Pizza (restaurant).jpg", "food_stimuli/Food_Folio_Images/Pop Tart strawberry frosted.jpg", "food_stimuli/Food_Folio_Images/Popsicles.jpg", "food_stimuli/Food_Folio_Images/Potato chips_Lays.jpg",
 "food_stimuli/Food_Folio_Images/Pretzels.jpg", "food_stimuli/Food_Folio_Images/Raisin Bran with whole milk.jpg", "food_stimuli/Food_Folio_Images/Raisins.jpg", "food_stimuli/Food_Folio_Images/Raspberries.jpg", "food_stimuli/Food_Folio_Images/Red bell pepper.jpg",
 "food_stimuli/Food_Folio_Images/Reese Peanut butter cups.jpg", "food_stimuli/Food_Folio_Images/Reeses Pieces.jpg", "food_stimuli/Food_Folio_Images/Rice & Beans.jpg", "food_stimuli/Food_Folio_Images/Rice Cakes.jpg", "food_stimuli/Food_Folio_Images/Rigatoni withtomato  sauce.jpg",
-"food_stimuli/Food_Folio_Images/Rigatoni_ plain.jpg", "food_stimuli/Food_Folio_Images/Ritz crackers.jpg", "food_stimuli/Food_Folio_Images/Roasted potato.jpg", "food_stimuli/Food_Folio_Images/Salad_ Spicy Chicken Caesar (Wendy's).jpg", "food_stimuli/Food_Folio_Images/Salami.jpg", 
+"food_stimuli/Food_Folio_Images/Rigatoni_ plain.jpg", "food_stimuli/Food_Folio_Images/Ritz crackers.jpg", "food_stimuli/Food_Folio_Images/Roasted potato.jpg", "food_stimuli/Food_Folio_Images/Salad_ Spicy Chicken Caesar (Wendy's).jpg", "food_stimuli/Food_Folio_Images/Salami.jpg",
 "food_stimuli/Food_Folio_Images/Salmon_grilled.jpg", "food_stimuli/Food_Folio_Images/Saltine crackers.jpg", "food_stimuli/Food_Folio_Images/Seaweed_ dehydrated.jpg", "food_stimuli/Food_Folio_Images/Shredded wheat 1 biscuit with 1% milk.jpg", "food_stimuli/Food_Folio_Images/Skim milk.jpg",
 "food_stimuli/Food_Folio_Images/Skittles.jpg", "food_stimuli/Food_Folio_Images/Sour patch kids candy.jpg", "food_stimuli/Food_Folio_Images/Soy crisps.jpg", "food_stimuli/Food_Folio_Images/Steak_ T_bone.jpg", "food_stimuli/Food_Folio_Images/Strawberries.jpg",
 "food_stimuli/Food_Folio_Images/String cheese.jpg", "food_stimuli/Food_Folio_Images/Sun Chips.jpg", "food_stimuli/Food_Folio_Images/Sushi with condiments.jpg", "food_stimuli/Food_Folio_Images/Swedish Fish.jpg", "food_stimuli/Food_Folio_Images/Sweet Potato.jpg",
@@ -82,14 +83,14 @@ var images = new Array("food_stimuli/Food_Folio_Images/1% milk.jpg", "food_stimu
 );
 var stimtime = 1000; // in milliseconds
 var isi = 1000; // in milliseconds
-var delayBetTargets = 20; // in seconds
-var delayBetVigilance = 4; // in trials. The size of image blocks
+var delayBetTargets = 120; // in seconds
+var delayBetVigilance = 5; // in trials. The size of image blocks
 var keytoWatch = "r"; // case doesn't matter
 var subsperim = 40; // how many subjects you want per image
 var payperhour = 5; // how much money you want to pay per hour
 var vigilancecutoff = 10000; // the number of vigilances they're allowed to fail before being booted
 var facutoff = 20000; // the number of false alarms they're allowed to make before being booted
-var timeBetweenBreaks = 30000; // in seconds
+var timeBetweenBreaks = 3000000; // in seconds
 var maxBreakTime = 1; // in seconds
 
 // text set by the experimenter
@@ -295,7 +296,7 @@ function showFailure(){
 // end the game if they make it to the end!
 function showEnding(){
 	document.getElementById("performancerecord").innerHTML = donetext;
-	document.getElementbyId("endingout").value = "completed";
+	document.getElementById("endingout").value = "completed";
 }
 
 // create the memorability-based image sequence
@@ -531,7 +532,7 @@ function countOccurences(array, value){
 <center>
 <h1>Memory Test</h1>
 	<table style="border:1px solid black"><tr>
-	<td style="border:1px solid black"><center><p><span id = "instructions">You will see a stream of images. Press the <b>'r'</b> key any time you see an <b>image</b> you saw before. Press when you see the image and not during the '+'. If you make too many errors, the game will finish. This will take approximately 5 minutes.</span></p></center></td></tr>
+	<td style="border:1px solid black"><center><p><span id = "instructions">You will see a stream of images. Press the <b>'r'</b> key any time you see an <b>image</b> you saw before. Press when you see the image and not during the '+'. If you make too many errors, the game will finish. This will take approximately 7 minutes.</span></p></center></td></tr>
 	<tr><td height=450 width=450 style="vertical-align:middle"><center>
 	<span id = "performancerecord">
 	</span>
@@ -539,7 +540,7 @@ function countOccurences(array, value){
 	</center></td></tr></table>
 <br>
 <h3><button type = "button" id = "startbutton" onclick = "buttonPress()" autocomplete="off" style="border: 1px solid black; height:70; width:250; border-radius:12px">Click to Start</button></h3><br>
-<p><span id = "consentinfo">By making judgements about these images, you are participating in a study being performed by cognitive scientists in the Blah Blah Lab at Blah Blah University. If you have questions about this research, please contact Dr. Blah at blah@blah.edu. Your participation in this research is voluntary. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</span></p>
+<p><span id = "consentinfo">By making judgements about these images, you are participating in a study being performed by cognitive scientists in the Bakkour Memory and Decision Lab at the University of Chicago. If you have questions about this research, please contact Dr. Akram Bakkour at bakkour@uchicago.edu. Your participation in this research is voluntary. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</span></p>
 <b>Click here to submit your HIT.</b> Only submit when completed, or you won't get full payment! If you decide to stop halfway, you can click this to end.<br><br>
 <input type = "submit" id="submitbutton" name="Submit HIT" value="Submit HIT">
 </center>
