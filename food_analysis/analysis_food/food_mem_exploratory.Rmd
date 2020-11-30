@@ -1,0 +1,144 @@
+---
+title: "Exploratory analysis for memorability of food stimuli"
+author: "Xinyue Li"
+date: "11/30/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+setwd("C:/Users/Christine/Desktop/python/mem_dm")
+library(MASS)
+library(plyr)
+library(corrplot)
+library(RColorBrewer)
+suppressWarnings(library(ggplot2))
+library(tidyverse)
+library(nFactors)
+dat.f = read.csv("food_analysis/stimchar_final_touse/stimchar_final_touse.csv")
+dat.f = dat.f %>% filter(age == "18-25" | age == "26-30" | age == "31-35")
+name = read.csv("mem.csv")
+
+```
+
+## Set up
+The food folios data is filtered by age (18-35).
+Same as what mentioned in the paper, we will also flip 4 of the measures:
+
+Sugar-low sugar
+
+Disgusting-not disgusting
+
+Healthy-unhealthy
+
+Vitamins-low vitamins
+
+(All of the following codes are based on source code by Shehzad on github: [github.com/czarrar/food_choice](https://github.com/czarrar/food_choice/blob/main/20_factor_scores.Rmd))
+ 
+```{r rdat}
+rdat = dat.f %>% select(stimulus, choice.rating, starts_with("rating"))
+colnames(rdat) = sub("rating[.]", "", colnames(rdat))
+colnames(rdat) = sub("[.]rating", "", colnames(rdat))
+
+rdat$sugar = 10 - rdat$sugar
+rdat$disgusting = 10 - rdat$disgusting
+rdat$healthy = 10 - rdat$healthy
+rdat$vitamins = 10 - rdat$vitamins
+
+# rename
+cinds = sapply(c("sugar", "disgusting", "healthy", "vitamins"), function(x) which(colnames(rdat) == x))
+colnames(rdat)[cinds] = c("low-sugar", "not-disgusting", "unhealthy", "low-vitamins")
+
+rmat = as.matrix(rdat[,-1])
+rownames(rmat) = rdat$stimulus
+rmat.nochoice = rmat[,-1]
+```
+
+## Correlation Matrix
+Correlation Matrix of filtered original data and memorability score
+The patterns of ratings are roughly the same as the correlation matrix in the manuscript.
+Memorability showed positive correlation with **tasty**, **other tasty**, **feel**, which are major loadings for the factor **tasty** analyzed in the manuscript.
+```{r ave.mat}
+# average of ratings for each image
+# follow the order of values on paper
+new.ord = c("tasty", "othertasty", "feel", "texture", "not-disgusting", "familiar", "filling", "unhealthy", "sweetsaltysavory", "calories", "carbohydrates", "fat", "low-vitamins", "gluten", "sodium", "low-sugar", "protein", "stimulus")
+
+# correlation matrix with memorability score
+ave.mat.r = rdat[,new.ord] %>% 
+  group_by(stimulus) %>% 
+  summarise_all(mean) 
+# matching memorability stimulus name to food data stimulus name
+ave.mat.r = data.frame(Memorability = name$Memorability, mem.stimulus = name$X, ave.mat.r)
+
+M.mem = ave.mat.r %>% select(-mem.stimulus, -stimulus) %>% cor()
+diag(M.mem) = 0
+corrplot(M.mem, method="circle", diag = F, #order="hclust", 
+         #is.corr=F, cl.lim=c(-0.85,0.85), 
+         col=rev(colorRampPalette(brewer.pal(n=11, name="RdBu"))(256)))
+```
+
+# Factor Analysis
+
+Run factor analysis with the filtered food data. The results are the same as the original dataset. There are 3 factors,and the loads of factors are showing same pattern as the paper showed.
+
+Three factors are named as: **Tasty, Healthiness, and Savory**.
+
+Plot loading of ratings to the three factors with the filtered data.
+```{r }
+# factor analysis
+nFactors::nCng(as.data.frame(rmat.nochoice), model="factors") 
+fit <- factanal(rmat.nochoice, 3, scores="regression")
+
+d <- dist(fit$loadings)
+hc <- hclust(d, method="average")
+dend <- as.dendrogram(hc)
+loads <- fit$loadings[order.dendrogram(dend),]
+loads <- rbind(choice=loads[rownames(loads) == "choice",], loads[rownames(loads) != "choice",])
+# Make tasty first, then health, and finally sweet/savory
+loads2 <- loads[,c(2,1,3)]
+colnames(loads2) <- sprintf("Factor-%i", 1:3)
+# Put the sweet/savory to the end
+loads2 <- rbind(loads2[-c(1:4),], loads2[1:4,])
+colnames(loads2) = c("Tasty", "Healthiness", "Savory")
+# Plot
+ cols2 <- colorRampPalette(c("#67001F", "#B2182B", "#D6604D", 
+                            "#F4A582", "#FDDBC7", "#FFFFFF", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC", "#053061"))(200)
+corrplot::corrplot(loads2, diag=T, col=rev(cols2), cl.pos="n")
+
+```
+
+## Multiple Regression
+The multiple regression result showed that **tasty** is the only factor that can predict memorability.
+
+Show as the plot below:
+```{r warning=FALSE}
+scores3 <- fit$scores
+ind1 <- which.max(fit$loadings[rownames(fit$loadings) == "unhealthy",])
+ind2 <- which.max(fit$loadings[rownames(fit$loadings) == "tasty",])
+ind3 <- which.max(fit$loadings[rownames(fit$loadings) == "sweetsaltysavory",])
+colnames(scores3) <- c("Food.UnHealth", "Food.Taste", "Food.SweetProtein")[c(ind1,ind2,ind3)]
+outdf <- data.frame(subjectId=dat.f$subjectId, stimulus=dat.f$stimulus, scores3)
+
+# score of factor for each food item
+ave.factor = outdf %>% group_by(stimulus) %>% 
+  summarise_all(mean) 
+
+# add mem score to the factor data frame
+labels = sapply(name$stimulus, function(x) which(ave.factor$stimulus == x))
+ave.factor.mem = data.frame(Memorability = name$Memorability, mem.stimulus = name$X, ave.factor)
+
+# perform linear regression
+fit1 = lm(Memorability ~ Food.Taste, data = ave.factor.mem)
+summary(fit1)
+
+# plot mem~food.taste
+ave.factor.mem %>% ggplot(aes(x = Food.Taste, y = Memorability))+
+  geom_point()+
+  geom_smooth(method='lm', se = FALSE)
+```
+
+
+
+
+

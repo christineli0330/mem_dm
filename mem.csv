@@ -1,0 +1,139 @@
+,X,Target.count,Hit.count,FA.count,HR,FAR,Memorability,stimulus
+111,1-milk.jpg,41,32,17,0.780487805,0.414634146,0.365853659,1 percent milk
+101,Air-popped-popcorn.jpg,41,27,15,0.658536585,0.365853659,0.292682927,air popcorn
+113,American-cheese.jpg,44,33,9,0.75,0.204545455,0.545454545,american cheese
+35,Apple.jpg,41,36,11,0.87804878,0.268292683,0.609756098,apple slices
+43,Avocado-green.jpg,42,29,6,0.69047619,0.142857143,0.547619048,avacado
+103,Baby-Bell-cheese-withcrackers.jpg,41,24,9,0.585365854,0.219512195,0.365853659,baby cheese
+12,Bagel-cream-cheese.jpg,44,29,14,0.659090909,0.318181818,0.340909091,bagel and cc
+102,Bagel-plain.jpg,41,35,10,0.853658537,0.243902439,0.609756098,bagel plain
+128,Baguette-with-olive-oil.jpg,40,21,5,0.525,0.125,0.4,baguette oil
+72,Baked-Potato.jpg,40,28,9,0.7,0.225,0.475,baked potato
+27,Banana.jpg,41,33,4,0.804878049,0.097560976,0.707317073,banana
+124,Black-Beans-with-rice.jpg,42,25,9,0.595238095,0.214285714,0.380952381,blackbeanswithrice
+44,Blueberries.jpg,41,33,8,0.804878049,0.195121951,0.609756098,blueberries
+104,Broccoli-Cauliflower-raw.jpg,40,25,8,0.625,0.2,0.425,broccoli cauliflower
+132,Broccoli-raw.jpg,42,26,8,0.619047619,0.19047619,0.428571429,broccoli
+26,Brownie.jpg,41,31,11,0.756097561,0.268292683,0.487804878,brownie
+90,Burger-on-bun-homemade-80-lean.jpg,43,32,13,0.744186047,0.302325581,0.441860465,burger
+17,Burrito-Amy-Bean-Cheese.jpg,40,28,4,0.7,0.1,0.6,burrito
+105,Cantaloupe.jpg,40,29,7,0.725,0.175,0.55,cantaloupe
+56,Carrot-Sticks.jpg,44,32,18,0.727272727,0.409090909,0.318181818,carrotsticks
+126,Celery-Carrot-Sticks.jpg,42,33,14,0.785714286,0.333333333,0.452380952,celery and carrot sticks
+129,Celery-sticks.jpg,41,33,10,0.804878049,0.243902439,0.56097561,celerysticks
+125,Cheerios-dry.jpg,41,29,14,0.707317073,0.341463415,0.365853659,cheerios
+134,Cheese-Nachos.jpg,41,35,8,0.853658537,0.195121951,0.658536585,Cheese nachos
+34,Cheese-cubes-mild-cheddar.jpg,41,29,5,0.707317073,0.12195122,0.585365854,cheesecubes
+67,Cheeze-Itz.jpg,42,28,10,0.666666667,0.238095238,0.428571429,cheezeits
+8,Cherries.jpg,41,27,10,0.658536585,0.243902439,0.414634146,cherries
+133,Cherry-tomatoes.jpg,40,29,3,0.725,0.075,0.65,cherry tomato
+68,Chicken-nuggets-w-BBQ-Sauce.jpg,45,33,7,0.733333333,0.155555556,0.577777778,chicken nuggets2
+51,Chicken-fingers-Perdue-Crispy-Chicken-Strips.jpg,41,32,13,0.780487805,0.317073171,0.463414634,chickenfingers
+112,Chicken-noodle-soup-Campbells-Classic.jpg,42,32,10,0.761904762,0.238095238,0.523809524,chickennoodlesoup
+122,Chocolate-dark-covered-pretzels-Flipz.jpg,42,33,12,0.785714286,0.285714286,0.5,chocolatecoveredpretzels
+108,Cocktail-shrimp.jpg,40,26,3,0.65,0.075,0.575,cocktailshrimp
+121,Choc-Chip-cookies-Entenmanns.jpg,40,24,10,0.6,0.25,0.35,cookies
+57,Corn-on-Cob.jpg,42,31,8,0.738095238,0.19047619,0.547619048,corn cob
+114,Craisins-Ocean-Spray.jpg,42,36,11,0.857142857,0.261904762,0.595238095,craisins
+115,Croissant-plain.jpg,40,31,9,0.775,0.225,0.55,croissant
+99,Cucumber-slices.jpg,45,36,13,0.8,0.288888889,0.511111111,cucumber slices
+109,Cupcakes-mini-frosted.jpg,43,34,5,0.790697674,0.11627907,0.674418605,cupcakes am
+106,Doritos-Nacho-Cheese.jpg,42,35,9,0.833333333,0.214285714,0.619047619,doritos
+42,Doughnuts-frosted-yeast-type.jpg,40,30,7,0.75,0.175,0.575,doughnuts
+118,Edamame.jpg,41,30,14,0.731707317,0.341463415,0.390243902,edamame
+78,Eggs-hard-boiled.jpg,41,34,9,0.829268293,0.219512195,0.609756098,eggs
+45,Egg-salad.jpg,43,26,16,0.604651163,0.372093023,0.23255814,eggsalad
+4,Falafel-withpita.jpg,44,21,11,0.477272727,0.25,0.227272727,falafelwithpita
+107,French-Fries.jpg,41,31,15,0.756097561,0.365853659,0.390243902,french fries
+135,Eggs-fried.jpg,42,31,12,0.738095238,0.285714286,0.452380952,fried eggs
+13,Fruit-Loops-w-whole-milk.jpg,41,34,16,0.829268293,0.390243902,0.43902439,froot loops w milk
+59,Fruit-salad.jpg,42,31,10,0.738095238,0.238095238,0.5,fruitsalad
+30,Graham-crackers-Nabisco-Original.jpg,43,30,9,0.697674419,0.209302326,0.488372093,grahamcrackers
+19,Granola-with-whole-milk.jpg,45,30,13,0.666666667,0.288888889,0.377777778,granola w milk
+110,Granola-bar-Nature-Valley-Crunchy.jpg,42,20,8,0.476190476,0.19047619,0.285714286,granolabar
+25,Grapefruit.jpg,40,26,4,0.65,0.1,0.55,grapefruit
+76,Grapes.jpg,40,33,9,0.825,0.225,0.6,Grapes
+15,Green-beans-raw.jpg,44,38,10,0.863636364,0.227272727,0.636363636,green beans
+31,Grilled-cheese.jpg,41,28,9,0.682926829,0.219512195,0.463414634,grilled cheese
+20,Grilled-chicken-strips.jpg,41,30,13,0.731707317,0.317073171,0.414634146,grilled chicken strips
+63,Hash-browns.jpg,41,20,8,0.487804878,0.195121951,0.292682927,hashbrowns
+71,Hersheys-Kisses.jpg,43,28,9,0.651162791,0.209302326,0.441860465,Hershey Kisses
+130,Hot-dog-on-bun-withmustard.jpg,42,30,6,0.714285714,0.142857143,0.571428571,hotdog w must
+36,Ice-cream-sundae-ice-cream-whip-cream-cherry.jpg,45,32,9,0.711111111,0.2,0.511111111,ice cream sundae 002
+131,Breyers-Vanilla-Ice-cream.jpg,41,27,8,0.658536585,0.195121951,0.463414634,icecream
+54,Kettle-Corn-Cracker-Jacks.jpg,44,28,13,0.636363636,0.295454545,0.340909091,kettlecorn
+3,Kit-Kat.jpg,45,37,6,0.822222222,0.133333333,0.688888889,kitkat
+14,Kiwi.jpg,41,30,11,0.731707317,0.268292683,0.463414634,kiwi
+116,Lettuce-salad.jpg,41,22,11,0.536585366,0.268292683,0.268292683,lettucesalad
+79,Lollipops.jpg,44,38,6,0.863636364,0.136363636,0.727272727,lollipops
+48,Lox.jpg,42,25,5,0.595238095,0.119047619,0.476190476,lox
+69,Lucky-Charms-with-1-milk.jpg,40,28,5,0.7,0.125,0.575,luckycharms
+94,MM-candies.jpg,41,32,17,0.780487805,0.414634146,0.365853659,m_and_m
+123,Mac-and-cheese-Stouffers.jpg,40,28,9,0.7,0.225,0.475,mac & cheese
+61,Mango.jpg,42,35,10,0.833333333,0.238095238,0.595238095,mango
+32,Mashed-potatoes-withbutter.jpg,42,26,6,0.619047619,0.142857143,0.476190476,mashed potato
+80,Melba-Toast-rye-Old-London.jpg,40,29,17,0.725,0.425,0.3,melbatoastcrackers
+46,Mini-muffins.jpg,44,34,10,0.772727273,0.227272727,0.545454545,mini muffins
+98,Mozzarella-sticks-withmarinara-sauce.jpg,40,28,7,0.7,0.175,0.525,mozarella sticks
+138,Mushrooms-raw.jpg,42,24,6,0.571428571,0.142857143,0.428571429,mushrooms
+77,Olives-green-withpimento.jpg,41,24,8,0.585365854,0.195121951,0.390243902,olives
+55,Omelet-plain.jpg,42,33,9,0.785714286,0.214285714,0.571428571,omelette
+81,Orange-sliced.jpg,44,32,7,0.727272727,0.159090909,0.568181818,orange slices
+136,Oreos.jpg,41,25,3,0.609756098,0.073170732,0.536585366,oreos
+62,Peanut-butter.jpg,44,38,4,0.863636364,0.090909091,0.772727273,PB
+5,Peach.jpg,40,33,19,0.825,0.475,0.35,peaches
+117,Peanut-Butter-Ritz-Bits-Crackers.jpg,42,29,8,0.69047619,0.19047619,0.5,peanutbutterritz
+24,Peanut-butter-1.5-oz-wt-withbanana-small.jpg,44,38,8,0.863636364,0.181818182,0.681818182,peanutbutterwithbanana
+9,Pear.jpg,40,22,8,0.55,0.2,0.35,pear
+33,Pickles-dill.jpg,42,30,8,0.714285714,0.19047619,0.523809524,pickles
+75,Pizza-restaurant.jpg,43,40,3,0.930232558,0.069767442,0.860465116,pizza
+18,Popsicles.jpg,42,30,6,0.714285714,0.142857143,0.571428571,popsicles
+84,Pop-Tart-strawberry-frosted.jpg,42,25,9,0.595238095,0.214285714,0.380952381,poptarts
+85,Potato-chips-Lays.jpg,45,33,7,0.733333333,0.155555556,0.577777778,potatochips
+73,Pretzels.jpg,40,31,9,0.775,0.225,0.55,Pretzels
+6,Raisin-Bran-with-whole-milk.jpg,44,22,9,0.5,0.204545455,0.295454545,raisin bran w milk
+74,Raisins.jpg,50,38,7,0.76,0.14,0.62,raisins
+88,Raspberries.jpg,41,29,14,0.707317073,0.341463415,0.365853659,raspberries
+29,Red-bell-pepper.jpg,43,36,7,0.837209302,0.162790698,0.674418605,redbellpepper
+60,Reeses-Peanut-butter-cups.jpg,44,30,6,0.681818182,0.136363636,0.545454545,reeses
+93,Reeses-Pieces.jpg,43,31,12,0.720930233,0.279069767,0.441860465,reesespieces
+50,Rice-Cakes.jpg,44,27,10,0.613636364,0.227272727,0.386363636,rice cakes
+87,Rigatoni-plain.jpg,42,30,8,0.714285714,0.19047619,0.523809524,rigatoni
+91,Rigatoni-withtomato-sauce.jpg,40,30,11,0.75,0.275,0.475,rigatoni and sauce
+23,Ritz-crackers.jpg,41,32,16,0.780487805,0.390243902,0.390243902,ritz
+82,Roasted-potato.jpg,42,29,10,0.69047619,0.238095238,0.452380952,roastedpotatoes
+100,Salad-Spicy-Chicken-Caesar-Wendys-no-dressing.jpg,43,22,8,0.511627907,0.186046512,0.325581395,salad w chicken
+83,Salami.jpg,40,26,7,0.65,0.175,0.475,salami
+38,Salmon-grilled.jpg,42,22,11,0.523809524,0.261904762,0.261904762,salmon
+127,Saltine-crackers.jpg,40,24,25,0.6,0.625,-0.025,saltines
+52,Seaweed-dehydrated.jpg,42,26,4,0.619047619,0.095238095,0.523809524,seaweed
+66,Shredded-wheat-1-biscuit-with-1-milk.jpg,40,26,12,0.65,0.3,0.35,shreddedwheatwithmilk
+65,Skim-milk.jpg,43,37,19,0.860465116,0.441860465,0.418604651,Skim milk
+39,Skittles.jpg,41,34,22,0.829268293,0.536585366,0.292682927,skittles
+49,Minestrone-Soup-chunky-.jpg,42,32,11,0.761904762,0.261904762,0.5,soup with spoon
+47,Sour-patch-kids-candy.jpg,42,28,8,0.666666667,0.19047619,0.476190476,sour patch
+1,Soy-crisps.jpg,41,24,11,0.585365854,0.268292683,0.317073171,soy chips
+86,Steak-T-bone.jpg,44,34,4,0.772727273,0.090909091,0.681818182,steak
+16,Strawberries.jpg,42,27,11,0.642857143,0.261904762,0.380952381,strawberries
+92,String-cheese.jpg,41,26,6,0.634146341,0.146341463,0.487804878,string cheese
+137,Sun-Chips.jpg,42,35,18,0.833333333,0.428571429,0.404761905,sunchips
+21,Sushi-with-condiments.jpg,40,25,6,0.625,0.15,0.475,sushi w_condiments
+10,Swedish-Fish.jpg,42,25,13,0.595238095,0.30952381,0.285714286,swedishfish
+64,Sweet-Potato.jpg,41,28,4,0.682926829,0.097560976,0.585365854,sweetpotato
+37,Taco-beef-Taco-Bell-soft-supreme-.jpg,40,25,12,0.625,0.3,0.325,tacos
+119,Trail-mix.jpg,40,26,10,0.65,0.25,0.4,trail mix
+2,Chocolate-trail-mix.jpg,42,32,12,0.761904762,0.285714286,0.476190476,trailmix
+40,Tribe-hummus-withpita-chips.jpg,41,27,5,0.658536585,0.12195122,0.536585366,Tribe humus pita
+89,Triscuit.jpg,40,26,18,0.65,0.45,0.2,triscuits
+96,Tuna-white-albacore-in-water-Bumble-Bee.jpg,41,28,10,0.682926829,0.243902439,0.43902439,tuna
+7,Turkey-on-roll-with-lettuce-and-tomato.jpg,41,25,10,0.609756098,0.243902439,0.365853659,turkey sandwich
+11,Turkey-breast-Oscar-Mayer-Deli-Select.jpg,41,30,9,0.731707317,0.219512195,0.512195122,turkeydelimeat
+70,Turkey-sandwich-roll-with-lettuce-and-tomato.jpg,40,22,12,0.55,0.3,0.25,turkeysandwich
+41,Veggies-with-ranch-dip-Lays.jpg,44,28,6,0.636363636,0.136363636,0.5,veggieswithdip
+53,Wheat-Bread-Pepperidge-Farm-100-WW.jpg,47,40,21,0.85106383,0.446808511,0.404255319,wheatbread
+58,White-Bread-Pepperidge-Farm-Hearty-White.jpg,40,32,13,0.8,0.325,0.475,whitebread
+28,Whole-milk.jpg,40,31,12,0.775,0.3,0.475,Whole milk
+22,Yellow-popcorn.jpg,41,30,11,0.731707317,0.268292683,0.463414634,yellow popcorn
+95,Rice-Beans.jpg,44,28,9,0.636363636,0.204545455,0.431818182,yellow rice_beans
+120,Yogurt-with-granola-strawberries.jpg,41,28,13,0.682926829,0.317073171,0.365853659,yogurt no spoon
+97,Yogurt-pretzels.jpg,41,31,9,0.756097561,0.219512195,0.536585366,yogurt pretzels

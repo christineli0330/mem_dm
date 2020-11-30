@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html>
+
+<!--html verison for counterbalancing target images --->
+<!---css style sheet - Xinyue --->
+<style>
+
+.text	{
+	padding-left: 80px;
+	padding-right: 80px;
+	padding-bottom: 20px;
+	font-size: 18px;
+}
+
+.title {
+	text-align: center;
+	font-family: "Courier New", Courier, monospace;
+	font-size: 32px;
+
+}
+
+.button {
+	text-align: center;
+	border: 2px solid #e7e7e7;
+  color: black;
+  padding: 8px 16px;
+	text-align: center;
+	border-radius: 10px;
+	font-size: 18px;
+  font-family: "Courier New", Courier, monospace;
+	transition-duration: 0.4s;
+	cursor: pointer;
+}
+
+.button:hover {
+  background-color: #e7e7e7;
+}
+
+.textarea {
+  width: 60%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  resize: none;
+}
+
+</style>
+
+<!--- Start the Javascript that does all the hard work! --->
+<script type="text/javascript" charset="UTF-8">
+
+/************** Script by Wilma A. Bainbridge, 2016 ***********************
+
+Updated August 26, 2020: Minor updates:
+- Now records responses during fixation
+- Fixed bug not showing "goodbye" message
+- Uses different (more stable) variable to determine experiment trial length
+- Participants now have to press "R" to begin, to ensure correct window focus
+----------------------
+
+This script was generated to help you run your memorability experiment based on the parameters you want. I hope this is useful to you! If you use the memorability scores or this script in any of your work, please cite:
+
+***
+
+I've streamlined how the experiments are run here in comparison to the original Isola et al., 2011 study. This means there are some differences for the sake of making this easier to handle. Major differences include:
+
+- Participants can no longer pause, exit, and start again later (since you'd need to maintain a database of their information somewhere!)
+- Breaks are fixed time - participants currently can't continue on their own (because of how Javascript's setTimeout works)
+- There is no more practice run. Feel free to make a mini experiment to use as a practice run.
+- There is no feedback for button presses.
+
+The output you will get are four variables:
+ 1. imseq: The order of image files shown to participants. Make sure you have no duplicate file names!! (Even if they're in different directories.)
+ 2. imtypeseq: The order of trial types.
+ 		0 = Fixation trial
+ 		1 = First presentation of a target image
+ 		2 = Second presentation (target repeat) of a target image
+ 		3 = First presentation of a filler image
+ 		4 = Second presentation (vigilance repeat) of a filler image
+ 3. perfseq: The order of participant behavior for each trial.
+ 		11 = hit
+ 		12 = miss
+ 		13 = false alarm
+ 		14 = correct rejection
+ 4. ending: Where the participant ended the study. If they finished, it will be set to "completed". If they failed, it will be set to "failed@" and the percentage of trials completed. If they stopped in the middle, it will be blank (but you will know the number of trials completed by the other variables).
+
+One thing to keep in mind is that the most complex part of this script is optimizing the number of targets, fillers, timing, etc to maximize number of memorability scores and minimize the cost of the experiment. I have a beginning formula here that will give a good estimate but there may be more complicated designs you could imagine implementing (for example, adding more vigilance repeats or more target repeats dynamically and intelligently if there are not enough fillers). Feel free to try your hand at this -- you could even hard-code the image sequence yourself here instead of having it automatically calculated if you want complete control over everything!
+
+Also keep in mind that these scripts don't necessarily account for human error. You may need to get more hits than the # calculated because people will often fail / quit in the middle.
+
+Lastly, this script can be used as-is with Amazon Mechanical Turk, but you will have to implement your own server-side saving mechanism if you want to host it on your own website. The main values to save in the database can be find in the hidden input tags near the end of this script. If you'd like a tutorial on this, contact me and I'll write one up for people to use.
+
+Let me know if you'd like anything added / changed: brainbridgelab@gmail.com. I will not be very actively updating these scripts, but if I get enough requests for a feature or change, I will likely implement it!
+
+*/
+
+
+// parameters set by the experimenter
+var fixation_address = "https://www.wilmabainbridge.com/datasets/memorabilitycollector/fixation.jpg";
+var images = new Array("https://voices.uchicago.edu/bakkourlab/files/2019/04/Ice-cream-sundae-ice-cream-whip-cream-cherry.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Breyers-Vanilla-Ice-cream.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Pop-Tart-strawberry-frosted.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Seaweed-dehydrated.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Mashed-potatoes-withbutter.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Granola-with-whole-milk.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Chicken-noodle-soup-Campbells-Classic.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Roasted-potato.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Avocado-green.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Baby-Bell-cheese-withcrackers.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Chocolate-trail-mix.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Peanut-butter-1.5-oz-wt-withbanana-small.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cheese-cubes-mild-cheddar.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Ritz-crackers.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Eggs-fried.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Salmon-grilled.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Banana.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Soy-crisps.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Skittles.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Hash-browns.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Kit-Kat.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Mango.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Mushrooms-raw.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Lox.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Chicken-nuggets-w-BBQ-Sauce.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Sweet-Potato.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cupcakes-mini-frosted.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Chocolate-dark-covered-pretzels-Flipz.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Potato-chips-Lays.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cantaloupe.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cucumber-slices.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Tribe-hummus-withpita-chips.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Craisins-Ocean-Spray.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Turkey-sandwich-roll-with-lettuce-and-tomato.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Trail-mix.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Bagel-plain.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Fruit-Loops-w-whole-milk.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Pickles-dill.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Pretzels.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Melba-Toast-rye-Old-London.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Lollipops.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Peanut-Butter-Ritz-Bits-Crackers.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Chicken-fingers-Perdue-Crispy-Chicken-Strips.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cherry-tomatoes.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Corn-on-Cob.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Grapefruit.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Omelet-plain.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Broccoli-Cauliflower-raw.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Kiwi.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Broccoli-raw.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Brownie.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cheerios-dry.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Reeses-Peanut-butter-cups.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Rice-Beans.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Mozzarella-sticks-withmarinara-sauce.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Doughnuts-frosted-yeast-type.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Sour-patch-kids-candy.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Blueberries.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Fruit-salad.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Orange-sliced.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Steak-T-bone.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Turkey-breast-Oscar-Mayer-Deli-Select.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Reeses-Pieces.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Doritos-Nacho-Cheese.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cheese-Nachos.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Croissant-plain.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Grapes.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Taco-beef-Taco-Bell-soft-supreme-.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Salad-Spicy-Chicken-Caesar-Wendys-no-dressing.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/String-cheese.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Rigatoni-plain.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Granola-bar-Nature-Valley-Crunchy.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Graham-crackers-Nabisco-Original.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Falafel-withpita.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Raisins.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Air-popped-popcorn.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Sushi-with-condiments.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Yogurt-pretzels.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Pear.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Hersheys-Kisses.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Hot-dog-on-bun-withmustard.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Swedish-Fish.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Mini-muffins.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Grilled-chicken-strips.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Salami.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Peanut-butter.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Rice-Cakes.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/American-cheese.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Burger-on-bun-homemade-80-lean.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Yogurt-with-granola-strawberries.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Choc-Chip-cookies-Entenmanns.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Burrito-Amy-Bean-Cheese.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Raisin-Bran-with-whole-milk.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Mac-and-cheese-Stouffers.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Minestrone-Soup-chunky-.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Carrot-Sticks.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Eggs-hard-boiled.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cherries.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/1-milk.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cheeze-Itz.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Popsicles.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Baguette-with-olive-oil.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Wheat-Bread-Pepperidge-Farm-100-WW.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Yellow-popcorn.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Baked-Potato.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/White-Bread-Pepperidge-Farm-Hearty-White.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Lucky-Charms-with-1-milk.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Whole-milk.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Triscuit.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Edamame.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Celery-Carrot-Sticks.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Bagel-cream-cheese.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Cocktail-shrimp.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Tuna-white-albacore-in-water-Bumble-Bee.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Veggies-with-ranch-dip-Lays.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Celery-sticks.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/MM-candies.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Pizza-restaurant.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Apple.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Skim-milk.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/French-Fries.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Sun-Chips.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Egg-salad.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Strawberries.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Shredded-wheat-1-biscuit-with-1-milk.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Oreos.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Black-Beans-with-rice.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Red-bell-pepper.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Kettle-Corn-Cracker-Jacks.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Olives-green-withpimento.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Green-beans-raw.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Turkey-on-roll-with-lettuce-and-tomato.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Grilled-cheese.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Saltine-crackers.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Peach.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Lettuce-salad.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Rigatoni-withtomato-sauce.jpg","https://voices.uchicago.edu/bakkourlab/files/2019/04/Raspberries.jpg"
+);
+
+var stimtime = 1000; // in milliseconds
+var isi = 1000; // in milliseconds
+var delayBetTargets = 120; // in seconds
+var delayBetVigilance = 5; // in trials. The size of image blocks
+var keytoWatch = "r"; // case doesn't matter
+var subsperim = 40; // how many subjects you want per image
+var payperhour = 5; // how much money you want to pay per hour
+var vigilancecutoff = 10000; // the number of vigilances they're allowed to fail before being booted
+var facutoff = 20000; // the number of false alarms they're allowed to make before being booted
+var timeBetweenBreaks = 3000000; // in seconds
+var maxBreakTime = 1; // in seconds
+
+// text set by the experimenter
+var failuretext = "<h2>Finished!</h2>Unfortunately you made too many errors and the game has ended. Press the <b>SUBMIT HIT</b> button to get credit for the hit.<br>";
+var donetext = "<h2>Finished!</h2>You have finished the task - great job! Press the <b>SUBMIT HIT</b> button to get credit for the hit.<br>";
+
+// global variables that are calculated later based on parameters
+var trialsBetTargets = 30; // in num trials
+var numfoils = 0;
+var numtargets = 0;
+var numtotalsubs = 0;
+var allc = 0; // overall sequence counter when building the sequence
+var experimentlength = 0;
+var paypersub = 0;
+var totalpay = 0;
+var trialsBetweenBreaks = 0;
+
+// full image sequence variables (these are the whole stream, with fixations built in)
+// deal with these for when running the experiment
+var fullsequence = []; // the sequence of everything (images plus fixation)
+var timesequence = []; // the sequence of the timings
+var typesequence = []; // the sequence of the image types
+var perfsequence = []; // the sequence of the performance
+var breakCounter = 0;
+
+// image-only sequence variables (the ordering without fixation or anything extra you add in)
+// deal with these when designing the stimulus presentation
+var imtypeseq = []; // the sequence of the image types
+var allimgseq = []; // the sequence of all the images
+var performanceseq = []; // the sequence of performance
+var imCount = -1; // trial number that is being shown. Starts from -1 because of setTimeOut quirks
+
+// tracking performance (to determine if they can continue)
+/* NOTE: This could be implemented in several different ways. For now I will do it as kicking someone out if they reach a certain number of failures, though you could imagine many other ways: 1) do it based on proportion of failures, 2) resetting if they get something right, 3) kicking out based on back-to-back failures, etc. You can try fiddling with determineFailure() to implement your own method!
+*/
+var vigilancefails = 0;
+var falsealarmcounts = 0;
+var kickedOut = 0;
+
+// output variables
+var imgstring = "";
+var imtypestring = "";
+var perfstring = "";
+
+// ID constants for image type
+const FIXATION = 0;
+const TARGET = 1;
+const REPEAT = 2; // target repeat
+const FILLER = 3;
+const VIGILANCE = 4; // vigilant repeat
+
+// ID constants for performance
+const HIT = 11;
+const MISS = 12;
+const FALSEALARM = 13;
+const CORRECTREJECTION = 14;
+
+var quiztrial = 0;
+
+/****************************************Functions*****************************************/
+
+// key press listener
+document.onkeydown = function(key){ processResponse(key);};
+
+
+// preload and then start
+function buttonPress(){
+	// disable the Start Button once started
+	document.getElementById("startbutton").value = "Experiment Running...";
+	document.getElementById("startbutton").disabled = true;
+	// now start the experiment
+	preloadEverything();
+	document.getElementById("performancerecord").innerHTML = "Press the <b>R key</b> to start. If it doesn't work, make sure to click in this browser window first.";
+}
+
+// recursive function that shows the images in a sequence
+function animateSequence(){
+
+	// save the performance of the previous trial
+	saveProgress();
+
+	// check if they've failed too much
+	determineFailure();
+	if (kickedOut){
+		showFailure();
+		return;
+	}
+
+	// check if it's time for a break
+	if (breakCounter >= trialsBetweenBreaks) {
+		giveBreak(0);
+		breakCounter = -1;
+		return;
+	}
+	breakCounter++;
+
+	imCount++; // have to increment before the trial because of setTimeOut
+	if (imCount == fullsequence.length){
+		showEnding();
+		return;
+	}
+	document.getElementById("stimulus").src = fullsequence[imCount];
+
+	setTimeout("animateSequence()", timesequence[imCount]);
+}
+
+// preload and calculate everything
+function preloadEverything() {
+	calculateProps(); // calculate target and filler proportions
+	/* NOTE: If you decide to manually separate the targets and foils, set their amounts here to
+	override what was calculated in calculateProps(). We still need to run calculateProps() for other values.
+	For example:
+		numtargets = 100;
+		numfoils = 500;
+	*/
+	makeImSequence(); // get the image order
+	calculateTotalPay(); // calculate payment
+	buildFullSequence(); // build the sequence with the images and fixation
+	// document.getElementById("startbutton").disabled = false;
+}
+
+// allows the participant to take a break
+/* function giveBreak(going){
+	if (going){
+		document.getElementById("performancerecord").innerHTML = '';
+		setTimeout("animateSequence()", timesequence[imCount])
+		return;
+	}
+	document.getElementById("stimulus").src = fixation_address;
+	document.getElementById("performancerecord").innerHTML = '<h2>Break time!</h2>Good job - you will now get a break. Please do not break for longer than ' + maxBreakTime + ' seconds or the HIT will continue without you. Press "<b>C</b>" to continue.';
+
+	setTimeout("giveBreak(1)", maxBreakTime*1000);
+}
+*/
+
+// builds the full sequence with both images and fixations, as well as timings
+function buildFullSequence(){
+	var i = 0;
+	var imcounter = 0;
+	while (i < imtypeseq.length*2){
+		// add an image
+		fullsequence[i] = images[allimgseq[imcounter]]; // get the image in that order
+		typesequence[i] = imtypeseq[imcounter];
+		timesequence[i] = stimtime;
+		perfsequence[i] = performanceseq[imcounter];
+		i++;
+		imcounter++;
+
+		// add a fixation
+		fullsequence[i] = fixation_address;
+		typesequence[i] = FIXATION;
+		timesequence[i] = isi;
+		perfsequence[i] = FIXATION;
+		i++;
+	}
+	console.log("Done building the full sequence.");
+}
+
+// get the key and respond
+function processResponse(key){
+	if(String.fromCharCode(key.keyCode).toLowerCase() == keytoWatch.toLowerCase()){ // if they pressed the desired key
+		var trialtype = typesequence[imCount];
+		if (imCount<0) { // they're pressing to start
+			document.getElementById("performancerecord").innerHTML = "";
+			animateSequence();
+		}
+		if ((trialtype == FIXATION) && imCount > 0) { // if it's fixation, get their response for the prior trial
+			trialtype = typesequence[imCount-1];
+		}
+		if (trialtype == REPEAT | trialtype == VIGILANCE) { // they correctly pressed the button!
+			perfsequence[imCount] = HIT;
+			console.log("Hit!");
+		} else if (trialtype == TARGET | trialtype == FILLER) { // they shouldn't have pressed
+			perfsequence[imCount] = FALSEALARM;
+			console.log("False alarm!");
+		}
+	}
+}
+
+// decide if they've failed too much
+function determineFailure(){
+	if (perfsequence[imCount] == FALSEALARM){
+		falsealarmcounts++;
+		console.log("False alarm count: " + falsealarmcounts);
+	}
+	if (falsealarmcounts >= facutoff){ // they've false alarmed too often!
+		kickedOut = 1;
+	}
+
+	if (perfsequence[imCount] == MISS & typesequence[imCount] == VIGILANCE){
+		vigilancefails++;
+		console.log("Vigilance miss count: " + vigilancefails);
+	}
+	if (vigilancefails >= vigilancecutoff){
+		kickedOut = 1;
+	}
+}
+
+// visually show their failure!
+function showFailure(){
+	document.getElementById("performancerecord").innerHTML = failuretext;
+	propcompleted = imCount/fullsequence.length*100;
+	propcompleted = propcompleted.toFixed(2); // round to 2 decimal places
+	document.getElementById("endingout").value = "failed@" + propcompleted + "%";
+}
+
+// end the game if they make it to the end!
+function showEnding(){
+	document.getElementById("performancerecord").innerHTML = donetext;
+	document.getElementById("endingout").value = "completed";
+	document.getElementById("demographicinput").style.display = "block";
+	document.getElementById("MemTest").style.display = "none";
+}
+
+// create the memorability-based image sequence
+function makeImSequence(){
+
+	/* NOTE: This code assumes you want to get the memorability scores of all of your images. If you instead have images you already know will be sorted as target vs. filler, you can edit that here. To do that:
+		1. Input images as targets followed by fillers (in the textbox list of images in the other frame, or at the top with var images = ...
+		2. Set numtargets to your number of targets
+		3. Remove allImArray = shuffleArray(allImArray).
+	The reason I haven't implemented this is because this depends on you choosing a good number of targets and fillers (rather than me calculating it for you here) and so it takes some thought
+	*/
+
+	var allImArray = populateArray(0, images.length);
+	//allImArray = shuffleArray(allImArray); // Comment this if you want to manually determine the targets and fillers
+	var targetIms = allImArray.slice(0, numtargets);
+	var fillerIms = allImArray.slice(numtargets, allImArray.length);
+	var imblock = [];
+	var typeblock = [];
+	var perfblock = [];
+
+	targetIms = shuffleArray(targetIms);
+	repeatIms = shuffleArray(targetIms);
+	fillerIms = shuffleArray(fillerIms);
+
+	tc = 0; // target counter
+	fc = 0; // filler counter
+	ofbc = 0; // old filler block counter
+	rc = 0; // repeat counter
+	allc = 0; // overall sequence counter
+
+	// now make pseudorandomized image blocks of 4 trials each
+	oldfillblock = [];
+
+	while (rc < repeatIms.length & fc < fillerIms.length){
+		var c = 0; // mini-block counter
+
+		if (tc < targetIms.length) { // TRIAL 1: a new targets (if there are still new ones to add)
+			imblock[c] = targetIms[tc];
+			typeblock[c] = TARGET;
+			perfblock[c] = CORRECTREJECTION; // default: no response means CR
+			tc++; c++; allc++;
+		} else { // if we're out of new targets, put in a regular filler
+			imblock[c] = fillerIms[fc];
+			typeblock[c] = FILLER;
+			perfblock[c] = CORRECTREJECTION; // default: no response means CR
+			oldfillblock[ofbc] = fillerIms[fc];
+			c++; allc++; ofbc++; fc++;
+		}
+
+		if (oldfillblock.length > 0) { // TRIAL 2: vigilance repeat from the last block
+			oldfillblock = shuffleArray(oldfillblock);
+			imblock[c] = oldfillblock[0];
+			typeblock[c] = VIGILANCE;
+			perfblock[c] = MISS; // default: no response means they missed it
+			c++; allc++;
+			oldfillblock = []; ofbc = 0;
+		} else { // if there was no last block, put in a regular filler
+			imblock[c] = fillerIms[fc];
+			typeblock[c] = FILLER;
+			perfblock[c] = CORRECTREJECTION;
+			oldfillblock[ofbc] = fillerIms[fc];
+			c++; allc++; ofbc++; fc++;
+		}
+
+		if (allc > trialsBetTargets) { // TRIAL 3: if enough delay has passed, can do target repeats
+			imblock[c] = repeatIms[rc];
+			typeblock[c] = REPEAT;
+			perfblock[c] = MISS;
+			rc++; c++; allc++;
+		} else{ // if it's not time for the target repeats yet, put in a regular filler
+			imblock[c] = fillerIms[fc];
+			typeblock[c] = FILLER;
+			perfblock[c] = CORRECTREJECTION;
+			oldfillblock[ofbc] = fillerIms[fc];
+			c++; allc++; ofbc++; fc++;
+		}
+
+		for (var i = 0; i < delayBetVigilance-3; i++){ // remaining trials: filler
+			if (fc < fillerIms.length) { // only if there are fillers left to fill
+				imblock[c] = fillerIms[fc];
+				typeblock[c] = FILLER;
+				perfblock[c] = CORRECTREJECTION;
+				oldfillblock[ofbc] = fillerIms[fc];
+				c++; allc++; ofbc++; fc++;
+			}
+		}
+
+		[imblock, typeblock, perfblock] = shuffleArrays([imblock, typeblock, perfblock]);
+
+		allimgseq = allimgseq.concat(imblock);
+		imtypeseq = imtypeseq.concat(typeblock);
+		performanceseq = performanceseq.concat(perfblock);
+
+	}
+
+	console.log("Done making the image sequence!");
+}
+
+// calculate the proportions of targets and foils
+function calculateProps(){
+	var trialtime = stimtime + isi;
+	trialsBetTargets = Math.floor(delayBetTargets*1000 / trialtime);
+	var B = trialsBetTargets;
+	var S = delayBetVigilance;
+	var C = images.length;
+
+	numfoils = 109; // derived formula for how many foils you can have that satisfy your constraints
+
+	/* Derivation comes from this:
+	variables:
+	C = # images, T = # targets, F = # foils, S = number of trials per block, B = minimum # of trials between targets
+	abbreviations:
+	t = target, f = foil, v = vigilance repeat, r = target repeat
+
+	F = (first block is 1 t, the rest f) + (blocks before r starts is 1 t, 1 v, the rest f) + (remaining blocks are 1 t, 1 v, 1 r, the rest f) + (except for blocks when you're not showing any new t, put back a f to fill that space)
+	F = (S-1) + (S-2)(B/S - 1) + (S-3)(T) + (T - B/S)		C = T + F
+	F = (S-1) + (S-2)(B/S - 1) + (S-3)(C-F) + (C-F - B/S)
+	...
+	F = (S-1 + (S-2)(C + B/S - 1) - B/S)/(S-1)
+
+	*/
+	numtargets = 29;
+
+	numfoils = Math.floor(numfoils);
+	numtargets = Math.ceil(numtargets);
+
+	// calculate how many subjects will be needed total
+	var proptargets = C / numtargets * subsperim;
+
+	// calculate how many trials before a break
+	trialsBetweenBreaks = Math.ceil(timeBetweenBreaks*1000/trialtime);
+
+	console.log("Calculated the proportions of images.");
+}
+
+// calculate the total pay for the whole study
+function calculateTotalPay(){
+	// calculate how many subjects will be needed total
+	var proptargets = images.length / numtargets;
+	numtotalsubs = proptargets * subsperim;
+
+	experimentlength = (allc * (stimtime + isi)/1000)/60;
+	paypersub = experimentlength/60 * payperhour;
+	totalpay = paypersub * numtotalsubs;
+
+	console.log("Calculated the pay amounts.");
+}
+
+function reportVariables(){
+	var report = " With your " + images.length + " total images, if you want " + delayBetTargets + "s between target images,\n You will need " + numtargets + " targets and " + numfoils + " foils.\n This will result in an experiment that is " + experimentlength + "min long.\n To get " + subsperim + " subjects per target image, you will need " + numtotalsubs + " total subjects.\n At a rate of $" + payperhour + " per hour, each experiment will cost $" + paypersub + ",\n Or $" + totalpay + " for the whole study.";
+
+	console.log(report)
+}
+
+// save to the output variables the performance and sequence completed so far
+function saveProgress(){
+	// get rid of the base address again just to shrink the length of the value
+	if (imCount >= 0) {
+		var tempimg = fullsequence[imCount];
+		tempimg = tempimg.substring(tempimg.lastIndexOf("/")+1);
+		if (imCount > 0) {
+			imgstring = imgstring + ",";
+			imtypestring = imtypestring + ",";
+			perfstring = perfstring + ",";
+		}
+		imgstring = imgstring + tempimg;
+		imtypestring = imtypestring + typesequence[imCount];
+		perfstring = perfstring + perfsequence[imCount];
+		document.getElementById("imseqout").value = imgstring;
+		document.getElementById("imtypeseqout").value = imtypestring;
+		document.getElementById("perfseqout").value = perfstring;
+		}
+}
+
+/*************************************** General useful functions **********************************************/
+
+// populate an array
+function populateArray(start, end){
+	array = [];
+	for (var i = start; i < end; i++){
+		array[i] = i;
+	}
+	return array;
+}
+
+// shuffle an array
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
+
+// shuffle multiple arrays with the same ordering (must all be same length)
+function shuffleArrays(arrays){
+	for (var i = arrays[0].length - 1; i > 0; i--) {
+		var j = Math.floor(Math.random() * (i + 1));
+		for (var an = 0; an < arrays.length; an++) {
+			var temp = arrays[an][i];
+			arrays[an][i] = arrays[an][j];
+			arrays[an][j] = temp;
+		}
+	}
+	return arrays;
+}
+
+// count the number of occurrences of a value in an array
+function countOccurences(array, value){
+	var counter = 0;
+	for (var i = 0; i < array.length; i++){
+		if (array[i] == value){
+			counter++;
+		}
+	}
+	return counter;
+}
+
+// Adding the first consent page - Xinyue Li
+
+function Endquiz(){
+	document.getElementById('QuizQ').style="display: none;";
+	document.getElementById('quizResultPage').style.display = 'block';
+
+	if (quiztrial <= 2){
+		document.getElementById("quizResult").innerHTML = "You've passed the quiz! This page will be directed to the experiment in 3 seconds...";
+		document.body.scrollTop = 0;
+		document.documentElement.scrollTop = 0
+		setTimeout(function () {
+			document.getElementById('quizResultPage').style="display: none;";
+			document.getElementById('MemTest').style.display = 'block';
+			document.body.scrollTop = 0;
+			document.documentElement.scrollTop = 0
+	}, 3000);
+
+	}
+	else{
+		document.getElementById("quizResult").innerHTML = "Unfortunately you did not pass our comprehension quiz. Your HIT will be rejected.";
+		document.getElementById('submitbutton').style.display = 'block';
+	}
+}
+
+function determineQuiz(){
+	var quiz_1_value = document.getElementsByName('quiz_1')[1].checked;
+	var quiz_2_value = document.getElementsByName('quiz_2')[3].checked;
+	var quiz_3_value = document.getElementsByName('quiz_3')[0].checked;
+
+	if (quiz_1_value == true & quiz_2_value == true & quiz_3_value == true){
+		Endquiz();
+	}	else {
+			quiztrial = quiztrial + 1;
+			var quiztrialleft = 3-quiztrial;
+			document.getElementById("notes").innerHTML = "Please focus on the instructions. If you fail to pass this quiz *within 3 attempts*, your HIT will be rejected. You still have [" + quiztrialleft + "] chances left. ";
+		}
+		if (quiztrial > 2){
+			Endquiz();
+		}
+
+}
+
+function GotoTest(){
+	document.getElementById('QuizQ').style="display: none;";
+	document.getElementById('MemTest').style.display = 'block';
+	document.body.scrollTop = 0;
+	document.documentElement.scrollTop = 0
+}
+
+function clicktoQuiz(){
+	document.getElementById('InstructionBegin').style="display: none;";
+	document.getElementById('QuizQ').style.display = 'block';
+	document.body.scrollTop = 0;
+	document.documentElement.scrollTop = 0
+}
+
+//function clicktoAge(){
+
+
+	//}
+
+	function clicktoConsent(){
+			document.getElementById('AgeCheck').style="display: none;";
+			document.getElementById('HitCheck').style.display = 'block';
+			document.body.scrollTop = 0;
+	  	document.documentElement.scrollTop = 0
+		}
+
+		function clicktoScreenHit(){
+				document.getElementById('HitCheck').style="display: none;";
+				document.getElementById('InstructionBegin').style.display = 'block';
+				document.body.scrollTop = 0;
+		  	document.documentElement.scrollTop = 0
+			}
+
+	function preload() {
+					for (i = 0; i < preload.arguments.length; i++) {
+						images[i] = new Image()
+						images[i].src = preload.arguments[i]
+					}
+				}
+
+
+</script>
+
+<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+<script type="text/javascript">
+function Pageload(){
+  var ut_id = "d0a7768f9833944f71fc5bb77b2a2b9a";
+	document.getElementById('consent').style="display: none;";
+	document.getElementById('AgeCheck').style.display = 'block';
+   if (UTWorkerLimitReached(ut_id)) {
+      	document.getElementById('AgeCheck').style.display = 'none';
+				document.getElementById('excludeWorkers').innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+   }
+	document.body.scrollTop = 0;
+	document.documentElement.scrollTop = 0
+}
+</script>
+
+
+
+<body>
+
+<form autocomplete="off">
+
+<!--- These are the hidden variables that get outputted to AMT --->
+<input type = "hidden" name = "imseq" id = "imseqout" value = "">
+<input type = "hidden" name = "imtypeseq" id = "imtypeseqout" value = "">
+<input type = "hidden" name = "perfseq" id = "perfseqout" value = "">
+<input type = "hidden" name = "ending" id = "endingout" value = "">
+
+
+<!-- preload images -Xinyue -->
+
+
+
+<!---the first consent page -Xinyue --->
+<span class="text" id = "excludeWorkers"> </span>
+<div id="consent">
+	<p class="title">The University of Chicago<br> <a ${placeholderword}></a>
+	Consent Form for Research Participation</p>
+	<p class="text">
+						<b>Study Number:</b> IRB20-1324Study <br>
+						<b>Title:</b> Memory and Decision<br>
+						<b>Researcher:</b> Akram Bakkour, PhD<br><br>
+						<b>Description:</b> We are researchers at the University of Chicago doing a research study about how human memory and decision making interact.
+						During this study, you will see visual stimuli (e.g., images, videos, text) presented on a computer screen, and/or hear sounds
+						(e.g., music, tones, voices, sounds from a video) through headphones or speakers. You will respond to the task instructions with a button press, typing,
+						mouse movement, or clicking on a scale on the screen. You may also be asked to complete questionnaires that assess cognitive abilities.
+						Participation will take up to 1 hour. Your participation is voluntary and you can withdraw at any time, although data collected up until the point of
+						withdrawal may still be included in the analysis.<br><br>
+						<b>Incentives:</b> Compensation will be provided as listed for the individual task, at a rate of approximately $7.50/hour.
+						MTurk does not allow for prorated compensation. In the event of an incomplete HIT, you must contact the research team and compensation will
+						be determined based on what was completed and at the researchers' discretion. <br><br>
+						PLEASE NOTE: This study contains attention checks to make sure that participants are finishing the tasks honestly and completely.
+						As long as you read the instructions and complete the tasks, your HIT will be approved. If you fail these checks, your HIT will be rejected.<br><br>
+						<b>Risks and Benefits:</b>
+						Taking part in this research study may not benefit you personally, but we may learn new things that could help others. Your participation in this study does not
+						involve any risk to you beyond that of everyday life. <br><br>
+						<b>Confidentiality:</b> Your Mechanical Turk Worker ID will be used to distribute payment to you but will not be stored with the research data we collect from you.
+						Please be aware that your MTurk Worker ID can potentially be linked to information about you on your Amazon public profile page, depending on the settings you have for your Amazon profile.
+						We will not be accessing any personally identifying information about you that you may have put on your Amazon public profile page.
+						De-identified data from this study maybe used for future research studies or shared with other researchers for future research without your additional informed consent.
+						If you decide to withdraw from this study, data collected up until the point of withdrawal may still be included in the analysis. <br><br>
+						<b>Contacts & Questions:</b> If you have questions or concerns about the study, you can contact the Principal Investigator Dr. Akram Bakkour at bakkourlab@uchicago.edu.
+						If you have any questions about your rights as a participant in this research, feel you have been harmed, or wish to discuss other study-related concerns with someone
+						who is not part of the research team, you can contact the University of Chicago Social & Behavioral Sciences Institutional Review Board (IRB) Officeby phone at (773) 702-2915,
+						or by email atsbs-irb@uchicago.edu.<br><br>
+            <b>Consent:</b> Participation is voluntary. Refusal to participate or withdrawing from the research will involve no penalty or loss of benefits to which you might otherwisebe entitled. <br><br>
+						By clicking “Agree” below, you confirm that you have read the consent form, are at least 18 years old, and agree to participate in the research.
+						Please print or save a copy of this page for your records. If you do not agree, please click “ReturnHIT”. ̈
+
+<center>	<input type="button" value="I agree to participate in the research" onclick=" Pageload();" class="button" ></center><br><br>
+
+</div>
+
+<div id = "AgeCheck" style="display:none;">
+	<br><br>
+ <center>	<p class="text"> By clicking the following button, you declare to be <b>18 - 35 years old</b>, and agree to participate in the research. If you don't meet the criteria, please click the 'Return HIT' button at the bottom right corner to end the study.<br><br>
+	<input type="button" value="I am within the ages of 18-35 years" onclick="clicktoConsent();" class="button">
+</center>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+
+<div id = "HitCheck" style="display:none;">
+	<br><br>
+<p class="text"> PLEASE NOTE:<br>
+	 You can only complete <b>one HIT</b> from this requester. If you already accepted more than one HIT, please click the 'Return HIT' button to avoid any impact on your approval rating. Only the first submitted HIT will be accepted.<br><br>
+<center>	<input type="button" value="I understand and accept" onclick="clicktoScreenHit();" class="button"></center>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+
+<!-- Instructional page -Xinyue -->
+<div id = "InstructionBegin" style="display:none;">
+	<br><br>
+ <p class="text">Instructions:<br>
+	 You will see a stream of images. After clicking the <b>start button</b>, press the <mark>'r'</mark> key on your keyboard ASAP any time you see an image you saw before.
+	 Press when you see the image and not during the '+'. If you make too many errors, the game will finish. This will take approximately 7 minutes.</p>
+	<center>	<p class="text"> We will now check for your comprehension of the task instructions.<br>
+	<b>	*If your responses indicate that you are not following instructions, your HIT will be rejected.* </b></p>
+		<input type="button" value="I accept these terms" onclick="clicktoQuiz();" class="button">
+</center>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+
+<!-- Comprehension quiz page -Xinyue -->
+<div id = "QuizQ" style="display:none;">
+	<br><br>
+		<p class="text"> Instructions:<br>
+			You will see a stream of images. After clicking the <b>start button</b>, press the <mark>'r'</mark> key on your keyboard ASAP any time you see an image you saw before.
+			Press when you see the image and not during the '+'. If you make too many errors, the game will finish. This will take approximately 7 minutes.</p> <br>
+<center>	<p class="text"> Please read the instructions above carefully and answer following questions.
+		If you failed to answer them correctly *within 3 attempts*, we will <b>reject your HIT automatically</b></p>
+
+		<label class="text" for="quiz_1"><b>When should you press the key?</b></label> <br>
+			<input name ="quiz_1"  type="radio" value="False">See an image for the first time</input> <br>
+			<input name ="quiz_1" type="radio" value="Correct">See an image for the second time</input> <br>
+			<input name ="quiz_1" type="radio" value="False">See the '+' sign</input> <br>
+			<input name ="quiz_1" type="radio" value="False">Anytime</input>
+		<br><br>
+		<label class="text"  for="quiz_2"><b>Which key should you press?</b></label> <br>
+			<input name ="quiz_2"  type="radio" value="False">k</input> <br>
+			<input name ="quiz_2" type="radio" value="False">p</input> <br>
+			<input name ="quiz_2" type="radio" value="False">m</input> <br>
+			<input name ="quiz_2"  type="radio" value="Correct">r</input>
+		<br><br>
+		<label class="text"  for="quiz_3"><b>What should you do when you see an image for the first time?</b></label> <br>
+			<input name ="quiz_3"  type="radio" value="Correct">Nothing</input> <br>
+			<input name ="quiz_3" type="radio" value="False">Press the key</input> <br>
+		<br><br>
+
+<span class="text" id = "notes"> </span><br><br>
+		<input type="button" value="Submit Answers" onclick="determineQuiz();" class="button"></center>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+
+<div id = "quizResultPage" style="display:none;">
+<span class="text" id = "quizResult"> </span>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+
+
+
+<!---the memorability test -Xinyue --->
+<div id="MemTest" class="screen" style="display:none;">
+	<center>
+	<!--	<h1>Memory Test</h1> -->
+		<table style="border:1px solid black"><tr>
+		<td style="border:1px solid black"><center><p style="font-size: 18px"><span id = "instructions">You will see a stream of images. After clicking the <b>start button</b>, press the <mark>'r'</mark> key on your keyboard ASAP any time you see an <mark>image you saw before</mark>. Press when you see the image and not during the '+'. If you make too many errors, the game will finish. This will take approximately 7 minutes.</span></p></center></td></tr>
+		<tr><td height=360 width=400 style="vertical-align:middle"><center>
+		<span id = "performancerecord">
+		</span>
+	<div id = "imagesequence"><img id = "stimulus" src = "https://www.wilmabainbridge.com/datasets/memorabilitycollector/fixation.jpg" height="360"></div>
+	</center></td></tr></table>
+<input class="button" id = "startbutton" onclick = "buttonPress()" autocomplete="off" value = "Click to Start">
+<p class="text"><span id = "consentinfo">By making judgements about these images, you are participating in a study being performed by cognitive scientists in the Bakkour Memory and Decision Lab at the University of Chicago. If you have questions about this research, please contact Dr. Akram Bakkour at bakkourlab@uchicago.edu. Your participation in this research is voluntary. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</span></p>
+<p class="text">If you decide to <b>stop halfway</b>, you can click "Return HIT"to end. Please noted that you will not receive full payment if you withdraw from the study. <br><br>
+</center>
+</div>
+
+	<div id="demographicinput" class="screen" style="display:none;">
+			<center> <p class="title" >Congratulations! You finished the study!</h1>
+				<p class="text"> Please fillout the following demographic information and then click the submit button to get full payment. </p>
+			<br>
+					<label class="text" for="gender"><b>What gender do you identify as?</b></label> <br>
+					  <input name ="gender" type="radio" value="Female">Female </input> <br>
+					  <input name ="gender" type="radio" value="Male">Male </input> <br>
+					  <input name ="gender" type="radio" value="Other">Other </input> <br>
+						<input name ="gender" type="radio" value="N/A">Prefer not to answer</input> <br>
+  				<br><br>
+
+					<label class="text" for="age"><b>What is your age? </b></label> <br>
+					    <input name ="age" type="radio" value="18-25">18-25 years old</input> <br>
+					    <input name ="age" type="radio" value="26-30">26-30 years old</input> <br>
+					    <input name ="age" type="radio" value="31-35">31-35 years old</input> <br>
+							<input name ="age" type="radio" value="N/A">Prefer not to answer</input> <br>
+	 					 <br><br>
+
+					<label class="text" for="ethnicity"><b>Please specify your ethnicity</b></label> <br>
+					    <input name ="ethnicity" type="radio" value="Caucasian">Caucasian</input> <br>
+					    <input name ="ethnicity" type="radio" value="African-American">African-American</input> <br>
+					    <input name ="ethnicity" type="radio" value="Latino-Hispanic">Latino or Hispanic</input> <br>
+							<input name ="ethnicity" type="radio" value="Asian">Asian</input> <br>
+							<input name ="ethnicity" type="radio" value="Native American">Native American</input> <br>
+							<input name ="ethnicity" type="radio" value="Native Hawaiian or Pacific Islander">Native Hawaiian or Pacific Islander</input> <br>
+              <input name ="ethnicity" type="radio" value="Other">Other</input> <br>
+							<input name ="ethnicity" type="radio" value="N/A">Prefer not to answer</input> <br>
+  				 <br><br>
+
+					 <label class="text" for="education"><b>What is the highest degree or level of education you have completed?</b></label> <br>
+					 		<input name ="education" type="radio" value="High school">High school degree or equivalent (e.g. GED)</input> <br>
+					 		<input name ="education" type="radio" value="Associate">Associate degree (e.g. AA, AS)</input> <br>
+					 		<input name ="education" type="radio" value="Some college">Some college, no degree</input> <br>
+					 		<input name ="education" type="radio" value="Bachelor">Bachelor's degree (e.g. BA, BS)</input> <br>
+					 		<input name ="education" type="radio" value="Master">Master's degree (e.g. MA, MS, MEd)</input> <br>
+					 		<input name ="education" type="radio" value="Professional">Professional degree (e.g. MD, DDS, DVM)</input> <br>
+					 		<input name ="education" type="radio" value="Doctorate">Doctorate (e.g. PhD, EdD)</input> <br>
+					 		<input name ="education" type="radio" value="N/A">Prefer not to answer</input> <br>
+					  <br><br>
+
+						<label class="text" for="feedback"><b>(Optional) Did you find any technical issue while completing the experiment? <br>Or is there anything you want to let us know?</b></label> <br>
+							<textarea name="comment" id = "feedback" class="textarea"></textarea>
+
+					 <br><br><br><br>
+
+		<b class="text">Click here to submit your HIT.</b><br><br>
+		<input class="button" type = "submit" id="submitbutton" name="Submit HIT" value="Submit HIT">
+</center>
+
+</div>
+
+ <br><br><br><br><br><br><br>
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/1-milk.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Air-popped-popcorn.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/American-cheese.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Apple.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Avocado-green.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Baby-Bell-cheese-withcrackers.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Bagel-cream-cheese.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Bagel-plain.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Baguette-with-olive-oil.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Banana.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Baked-Potato.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Breyers-Vanilla-Ice-cream.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Blueberries.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Black-Beans-with-rice.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Brownie.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Broccoli-Cauliflower-raw.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Broccoli-raw.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cantaloupe.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Burrito-Amy-Bean-Cheese.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Burger-on-bun-homemade-80-lean.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Celery-sticks.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Celery-Carrot-Sticks.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Carrot-Sticks.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cheese-Nachos.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cheese-cubes-mild-cheddar.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cheerios-dry.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cherry-tomatoes.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cherries.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cheeze-Itz.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Chicken-nuggets-w-BBQ-Sauce.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Chicken-noodle-soup-Campbells-Classic.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Chicken-fingers-Perdue-Crispy-Chicken-Strips.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Chocolate-trail-mix.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Chocolate-dark-covered-pretzels-Flipz.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Choc-Chip-cookies-Entenmanns.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Craisins-Ocean-Spray.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Corn-on-Cob.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cocktail-shrimp.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cupcakes-mini-frosted.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Cucumber-slices.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Croissant-plain.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Edamame.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Doughnuts-frosted-yeast-type.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Doritos-Nacho-Cheese.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Eggs-hard-boiled.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Eggs-fried.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Egg-salad.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Fruit-Loops-w-whole-milk.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/French-Fries.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Falafel-withpita.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Fruit-salad.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Graham-crackers-Nabisco-Original.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Granola-bar-Nature-Valley-Crunchy.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Granola-with-whole-milk.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Grapefruit.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Grapes.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Green-beans-raw.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Grilled-cheese.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Grilled-chicken-strips.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Hash-browns.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Hersheys-Kisses.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Hot-dog-on-bun-withmustard.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Ice-cream-sundae-ice-cream-whip-cream-cherry.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Kettle-Corn-Cracker-Jacks.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Kit-Kat.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Kiwi.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Lettuce-salad.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Lollipops.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Lox.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Lucky-Charms-with-1-milk.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/MM-candies.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Mac-and-cheese-Stouffers.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Mango.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Mashed-potatoes-withbutter.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Melba-Toast-rye-Old-London.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Minestrone-Soup-chunky-.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Mini-muffins.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Mozzarella-sticks-withmarinara-sauce.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Mushrooms-raw.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Olives-green-withpimento.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Omelet-plain.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Orange-sliced.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Oreos.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Peach.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Peanut-butter-1.5-oz-wt-withbanana-small.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Peanut-Butter-Ritz-Bits-Crackers.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Peanut-butter.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Pear.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Pickles-dill.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Pizza-restaurant.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Pop-Tart-strawberry-frosted.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Popsicles.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Potato-chips-Lays.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Pretzels.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Raisin-Bran-with-whole-milk.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Raisins.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Raspberries.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Red-bell-pepper.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Reeses-Peanut-butter-cups.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Reeses-Pieces.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Rice-Beans.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Rice-Cakes.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Rigatoni-withtomato-sauce.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Rigatoni-plain.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Ritz-crackers.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Roasted-potato.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Salad-Spicy-Chicken-Caesar-Wendys-no-dressing.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Salami.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Salmon-grilled.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Saltine-crackers.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Seaweed-dehydrated.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Shredded-wheat-1-biscuit-with-1-milk.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Skim-milk.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Skittles.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Sour-patch-kids-candy.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Soy-crisps.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Steak-T-bone.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Strawberries.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/String-cheese.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Sun-Chips.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Sushi-with-condiments.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Swedish-Fish.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Sweet-Potato.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Taco-beef-Taco-Bell-soft-supreme-.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Trail-mix.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Tribe-hummus-withpita-chips.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Triscuit.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Tuna-white-albacore-in-water-Bumble-Bee.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Turkey-breast-Oscar-Mayer-Deli-Select.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Turkey-on-roll-with-lettuce-and-tomato.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Turkey-sandwich-roll-with-lettuce-and-tomato.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Veggies-with-ranch-dip-Lays.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Wheat-Bread-Pepperidge-Farm-100-WW.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/White-Bread-Pepperidge-Farm-Hearty-White.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Whole-milk.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Yellow-popcorn.jpg", height="1", width="1"><img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Yogurt-pretzels.jpg", height="1", width="1">
+<img src="https://voices.uchicago.edu/bakkourlab/files/2019/04/Yogurt-with-granola-strawberries.jpg", height="1", width="1">
+
+
+</form>
+</body>
+</html>
