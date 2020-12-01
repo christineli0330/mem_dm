@@ -150,6 +150,12 @@ cor.test(ave.factor.mem$Memorability, ave.factor.mem$Food.SweetProtein)
 rdat.mean = rdat %>% group_by(stimulus)%>%  summarise_all(mean) 
 rdat.mean = data.frame(Memorability = name$Memorability, mem.stimulus = name$X, rdat.mean)
 cor.test(rdat.mean$Memorability, rdat.mean$choice)
+
+# plot memorability and preference choice
+rdat.mean %>% ggplot(aes(x = choice, y = Memorability))+
+  geom_point()+
+  geom_smooth(method='lm', se = FALSE)
+
 ```
 
 
