@@ -504,7 +504,8 @@ cor.test(ave.factor.mem$Memorability, ave.factor.mem$Food.UnHealth)</code></pre>
 ## sample estimates:
 ##         cor 
 ## 0.008309388</code></pre>
-<pre class="r"><code>cor.test(ave.factor.mem$Memorability, ave.factor.mem$Food.SweetProtein)</code></pre>
+<pre class="r"><code># correlation between memorability and Savory
+cor.test(ave.factor.mem$Memorability, ave.factor.mem$Food.SweetProtein)</code></pre>
 <pre><code>## 
 ##  Pearson&#39;s product-moment correlation
 ## 
@@ -516,6 +517,21 @@ cor.test(ave.factor.mem$Memorability, ave.factor.mem$Food.UnHealth)</code></pre>
 ## sample estimates:
 ##        cor 
 ## -0.1007559</code></pre>
+<pre class="r"><code># correlation between memorability and choice preference
+rdat.mean = rdat %&gt;% group_by(stimulus)%&gt;%  summarise_all(mean) 
+rdat.mean = data.frame(Memorability = name$Memorability, mem.stimulus = name$X, rdat.mean)
+cor.test(rdat.mean$Memorability, rdat.mean$choice)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  rdat.mean$Memorability and rdat.mean$choice
+## t = 2.033, df = 136, p-value = 0.04399
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.004773882 0.329393334
+## sample estimates:
+##       cor 
+## 0.1717417</code></pre>
 </div>
 <div id="factor-analysis-with-memorability" class="section level2">
 <h2>Factor analysis with memorability</h2>
