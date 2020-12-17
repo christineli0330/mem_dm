@@ -16,6 +16,7 @@ library(RColorBrewer)
 suppressWarnings(library(ggplot2))
 library(tidyverse)
 library(nFactors)
+library(factoextra)
 dat.f = read.csv("food_analysis/stimchar_final_touse/stimchar_final_touse.csv")
 dat.f = dat.f %>% filter(age == "18-25" | age == "26-30" | age == "31-35")
 name = read.csv("mem.csv")
@@ -37,7 +38,7 @@ Vitamins-low vitamins
 (All of the following codes are based on source code by Shehzad on github: [github.com/czarrar/food_choice](https://github.com/czarrar/food_choice/blob/main/20_factor_scores.Rmd))
  
 ```{r rdat}
-rdat = dat.f %>% select(stimulus, choice.rating, starts_with("rating"))
+rdat = dat.f %>% dplyr::select(stimulus, choice.rating, starts_with("rating"))
 colnames(rdat) = sub("rating[.]", "", colnames(rdat))
 colnames(rdat) = sub("[.]rating", "", colnames(rdat))
 
@@ -71,7 +72,7 @@ ave.mat.r = rdat[,new.ord] %>%
 # matching memorability stimulus name to food data stimulus name
 ave.mat.r = data.frame(Memorability = name$Memorability, mem.stimulus = name$X, ave.mat.r)
 
-M.mem = ave.mat.r %>% select(-mem.stimulus, -stimulus) %>% cor()
+M.mem = ave.mat.r %>% dplyr::select(-mem.stimulus, -stimulus) %>% cor()
 diag(M.mem) = 0
 corrplot(M.mem, method="circle", diag = F, #order="hclust", 
          #is.corr=F, cl.lim=c(-0.85,0.85), 
@@ -129,7 +130,7 @@ labels = sapply(name$stimulus, function(x) which(ave.factor$stimulus == x))
 ave.factor.mem = data.frame(Memorability = name$Memorability, mem.stimulus = name$X, ave.factor)
 
 # perform linear regression
-fit1 = lm(Memorability ~ Food.Taste, data = ave.factor.mem)
+fit1 = lm(Memorability ~ Food.Taste + Food.UnHealth + Food.SweetProtein, data = ave.factor.mem)
 summary(fit1)
 
 # plot mem~food.taste
@@ -163,7 +164,7 @@ rdat.mean %>% ggplot(aes(x = choice, y = Memorability))+
 
 ```{r}
 # include memorability in factor analysis
-ave.mat.r.nostimulus = ave.mat.r %>% select(-mem.stimulus, -stimulus)
+ave.mat.r.nostimulus = ave.mat.r %>% dplyr::select(-mem.stimulus, -stimulus)
 nFactors::nCng(as.data.frame(ave.mat.r.nostimulus), model="factors") 
 fit.m <- factanal(ave.mat.r.nostimulus, 3, scores="regression")
 
@@ -182,4 +183,101 @@ colnames(loads2.m) = c("Tasty", "Healthiness", "Savory")
 corrplot::corrplot(loads2.m, diag=T, col=rev(cols2), cl.pos="n")
 ```
 
+## Physical Properties of the Images
+
+**No significance** found between memorabillity and low level perceptural properties of the images. 
+
+```{r}
+dat.name = read.csv("label_and_image_name.csv")
+dat.physical = read.csv("physical_image_properties.csv")
+physical.mem = cbind(dat.name, dat.physical, ave.factor.mem)
+
+# correlation between memorability and R/G/B
+cor.test(physical.mem$Memorability, physical.mem$Red)
+cor.test(physical.mem$Memorability, physical.mem$Green)
+cor.test(physical.mem$Memorability, physical.mem$Blue)
+# correlation between memorability and intensity
+cor.test(physical.mem$Memorability, physical.mem$Intensity)
+# correlation between memorability and complexity
+cor.test(physical.mem$Memorability, physical.mem$Normalized.complexity)
+
+
+
+```
+
+## Clustering Analysis
+
+```{r}
+# K-Means Cluster Analysis
+kmeans.data = ave.factor.mem %>% dplyr::select(-mem.stimulus, -subjectId, -stimulus)
+fit = kmeans(kmeans.data, 5) # 5 cluster solution
+# get cluster means
+cluster.means = aggregate(kmeans.data,by=list(fit$cluster),FUN=mean)
+# barplots for means
+# cluster.means %>% group_by(Group.1) %>% mutate(Group = Group.1) %>%
+# ggplot( aes(y = Food.UnHealth, x = Group)) +
+#   geom_bar(aes(color = Group, fill = Group), 
+#                 stat = "identity") 
+# cluster.means %>% group_by(Group.1) %>% mutate(Group = Group.1) %>%
+# ggplot( aes(y = Food.Taste, x = Group)) +
+#   geom_bar(aes(color = Group, fill = Group), 
+#                 stat = "identity")
+# cluster.means %>% group_by(Group.1) %>% mutate(Group = Group.1) %>%
+# ggplot( aes(y = Food.SweetProtein, x = Group)) +
+#   geom_bar(aes(color = Group, fill = Group), 
+#                 stat = "identity")
+cluster.means %>% group_by(Group.1) %>% mutate(Group = Group.1) %>%
+ggplot( aes(y = Memorability, x = Group)) +
+  geom_bar(aes(color = Group, fill = Group), 
+                stat = "identity")
+
+# append cluster assignment
+kmeans.data = data.frame(kmeans.data, fit$cluster)
+
+# plot
+fviz_cluster(fit, data = kmeans.data[, -5],
+             # palette = c("#2E9FDF", "#00AFBB", "#E7B800"), 
+             geom = "point",
+             ellipse.type = "convex", 
+             ggtheme = theme_bw()
+             )
+
+```
+
+
+## Clustering analysis without memorability
+
+```{r}
+# K-Means Cluster Analysis
+kmeans.data.no = ave.factor.mem %>% dplyr::select(-mem.stimulus, -subjectId, -stimulus, -Memorability)
+fit.no.mem = kmeans(kmeans.data.no, 5) # 5 cluster solution
+# get cluster means
+cluster.means.no = aggregate(kmeans.data.no,by=list(fit.no.mem$cluster),FUN=mean)
+
+# cluster.means.no %>% group_by(Group.1) %>% mutate(Group = Group.1) %>%
+# ggplot( aes(y = Food.UnHealth, x = Group)) +
+#   geom_bar(aes(color = Group, fill = Group), 
+#                 stat = "identity") 
+# cluster.means.no %>% group_by(Group.1) %>% mutate(Group = Group.1) %>%
+# ggplot( aes(y = Food.Taste, x = Group)) +
+#   geom_bar(aes(color = Group, fill = Group), 
+#                 stat = "identity")
+# cluster.means.no %>% group_by(Group.1) %>% mutate(Group = Group.1) %>%
+# ggplot( aes(y = Food.SweetProtein, x = Group)) +
+#   geom_bar(aes(color = Group, fill = Group), 
+#                 stat = "identity")
+
+
+# append cluster assignment
+kmeans.data = data.frame(kmeans.data.no, fit.no.mem$cluster)
+
+# plot
+fviz_cluster(fit.no.mem, data = kmeans.data.no,
+             # palette = c("#2E9FDF", "#00AFBB", "#E7B800"), 
+             geom = "point",
+             ellipse.type = "convex", 
+             ggtheme = theme_bw()
+             )
+
+```
 
